@@ -1,9 +1,9 @@
-const version = 'v1.0';
-
+const version = 'v6.1';
+const STATIC_CACHE = `static-${version}`;
+const DYNAMIC_CACHE = `dynamic-${version}`;
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('static').then((cache) => {
-      console.log('Pre-caching app shell');
+    caches.open(STATIC_CACHE).then((cache) => {
       cache.addAll([
         '/',
         '/index.html',
@@ -22,13 +22,36 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(
+        keyList.map((key) => {
+          if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
   return self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      if (response) {
+        return response;
+      } else {
+        return fetch(event.request).then((res) => {
+          return caches
+            .open(DYNAMIC_CACHE)
+            .then((cache) => {
+              cache.put(event.request.url, res.clone());
+              return res;
+            })
+            .catch((err) => {});
+        });
+      }
     })
   );
 });

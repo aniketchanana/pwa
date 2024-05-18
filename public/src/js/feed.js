@@ -1,6 +1,8 @@
 var shareImageButton = document.querySelector('#share-image-button');
 var createPostArea = document.querySelector('#create-post');
-var closeCreatePostModalButton = document.querySelector('#close-create-post-modal-btn');
+var closeCreatePostModalButton = document.querySelector(
+  '#close-create-post-modal-btn'
+);
 var sharedMomentsArea = document.querySelector('#shared-moments');
 
 function openCreatePostModal() {
@@ -8,7 +10,7 @@ function openCreatePostModal() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
 
-    deferredPrompt.userChoice.then(function(choiceResult) {
+    deferredPrompt.userChoice.then(function (choiceResult) {
       console.log(choiceResult.outcome);
 
       if (choiceResult.outcome === 'dismissed') {
@@ -29,7 +31,16 @@ function closeCreatePostModal() {
 shareImageButton.addEventListener('click', openCreatePostModal);
 
 closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
-
+// no use for now
+function onSaveButtonClick() {
+  console.log('clicked');
+  if ('caches' in window) {
+    caches.open('user-requested').then(function (cache) {
+      cache.add('https://httpbin.org/get');
+      cache.add('/src/images/sf-boat.jpg');
+    });
+  }
+}
 function createCard() {
   var cardWrapper = document.createElement('div');
   cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
@@ -46,6 +57,10 @@ function createCard() {
   var cardSupportingText = document.createElement('div');
   cardSupportingText.className = 'mdl-card__supporting-text';
   cardSupportingText.textContent = 'In San Francisco';
+  // const cardSaveButton = document.createElement('button');
+  // cardSaveButton.addEventListener('click', onSaveButtonClick);
+  // cardSaveButton.textContent = 'Save';
+  // cardSupportingText.appendChild(cardSaveButton);
   cardSupportingText.style.textAlign = 'center';
   cardWrapper.appendChild(cardSupportingText);
   componentHandler.upgradeElement(cardWrapper);
@@ -53,9 +68,9 @@ function createCard() {
 }
 
 fetch('https://httpbin.org/get')
-  .then(function(res) {
+  .then(function (res) {
     return res.json();
   })
-  .then(function(data) {
+  .then(function (data) {
     createCard();
   });
