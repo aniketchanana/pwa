@@ -66,11 +66,36 @@ function createCard() {
   componentHandler.upgradeElement(cardWrapper);
   sharedMomentsArea.appendChild(cardWrapper);
 }
-
-fetch('https://httpbin.org/get')
+function clearCards() {
+  while (sharedMomentsArea.hasChildNodes()) {
+    sharedMomentsArea.removeChild(sharedMomentsArea.lastChild);
+  }
+}
+const httpGetBin = 'https://httpbin.org/get';
+let networkDataRec = false;
+fetch(httpGetBin)
   .then(function (res) {
     return res.json();
   })
   .then(function (data) {
+    networkDataRec = true;
+    clearCards();
+    console.log('from web data', data);
     createCard();
   });
+
+if ('caches' in window) {
+  caches
+    .match(httpGetBin)
+    .then((resp) => {
+      if (resp) {
+        return resp.json();
+      }
+    })
+    .then((data) => {
+      if (!networkDataRec) {
+        console.log('from cache', data);
+        createCard();
+      }
+    });
+}
