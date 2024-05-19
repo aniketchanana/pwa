@@ -37,7 +37,11 @@ self.addEventListener('activate', (event) => {
   );
   return self.clients.claim();
 });
-
+function trimCache(cacheName, maxItems) {
+  // it is good to trim the cache and have only limited items in it
+  // dynamic cache can go up and up
+  // having a LRU cache algo to handle cache size is best
+}
 // self.addEventListener('fetch', (event) => {
 //   event.respondWith(
 //     caches.match(event.request).then((response) => {
@@ -90,6 +94,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(DYNAMIC_CACHE).then(function (cache) {
         return fetch(event.request).then((res) => {
+          trimCache(DYNAMIC_CACHE, 3);
           cache.put(event.request, res.clone());
           return res;
         });
@@ -107,6 +112,7 @@ self.addEventListener('fetch', (event) => {
           return fetch(event.request)
             .then((res) => {
               return caches.open(DYNAMIC_CACHE).then((cache) => {
+                trimCache(DYNAMIC_CACHE, 3);
                 cache.put(event.request.url, res.clone());
                 return res;
               });

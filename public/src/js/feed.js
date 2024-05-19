@@ -22,6 +22,14 @@ function openCreatePostModal() {
 
     deferredPrompt = null;
   }
+  // code to un-registering a service worker
+  // if ('serviceWorker' in navigator) {
+  //   navigator.serviceWorker.getRegistrations().then((registrations) => {
+  //     for (let i = 0; i < registrations.length; i++) {
+  //       registrations[i].unregister();
+  //     }
+  //   });
+  // }
 }
 
 function closeCreatePostModal() {
