@@ -49,22 +49,22 @@ function onSaveButtonClick() {
     });
   }
 }
-function createCard() {
+function createCard(data) {
   var cardWrapper = document.createElement('div');
   cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
   var cardTitle = document.createElement('div');
   cardTitle.className = 'mdl-card__title';
-  cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
+  cardTitle.style.backgroundImage = `url('${data.image}')`;
   cardTitle.style.backgroundSize = 'cover';
   cardTitle.style.height = '180px';
   cardWrapper.appendChild(cardTitle);
   var cardTitleTextElement = document.createElement('h2');
   cardTitleTextElement.className = 'mdl-card__title-text';
-  cardTitleTextElement.textContent = 'San Francisco Trip';
+  cardTitleTextElement.textContent = data.title;
   cardTitle.appendChild(cardTitleTextElement);
   var cardSupportingText = document.createElement('div');
   cardSupportingText.className = 'mdl-card__supporting-text';
-  cardSupportingText.textContent = 'In San Francisco';
+  cardSupportingText.textContent = data.location;
   // const cardSaveButton = document.createElement('button');
   // cardSaveButton.addEventListener('click', onSaveButtonClick);
   // cardSaveButton.textContent = 'Save';
@@ -79,7 +79,16 @@ function clearCards() {
     sharedMomentsArea.removeChild(sharedMomentsArea.lastChild);
   }
 }
-const httpGetBin = 'https://httpbin.org/get';
+const httpGetBin =
+  'https://pwagram-2d239-default-rtdb.firebaseio.com/posts.json';
+
+function updateUI(data) {
+  clearCards();
+  for (var i = 0; i < data.length; i++) {
+    createCard(data[i]);
+  }
+}
+
 let networkDataRec = false;
 fetch(httpGetBin)
   .then(function (res) {
@@ -87,9 +96,12 @@ fetch(httpGetBin)
   })
   .then(function (data) {
     networkDataRec = true;
-    clearCards();
     console.log('from web data', data);
-    createCard();
+    const dataArr = [];
+    for (const key in data) {
+      dataArr.push(data[key]);
+    }
+    updateUI(dataArr);
   });
 
 if ('caches' in window) {
@@ -102,8 +114,12 @@ if ('caches' in window) {
     })
     .then((data) => {
       if (!networkDataRec) {
+        const dataArr = [];
+        for (const key in data) {
+          dataArr.push(data[key]);
+        }
         console.log('from cache', data);
-        createCard();
+        updateUI(dataArr);
       }
     });
 }

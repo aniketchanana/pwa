@@ -1,4 +1,4 @@
-const version = 'v7.0';
+const version = 'v7.1';
 const STATIC_CACHE = `static-${version}`;
 const DYNAMIC_CACHE = `dynamic-${version}`;
 const STATIC_FILES = [
@@ -79,7 +79,8 @@ function trimCache(cacheName, maxItems) {
 //       })
 //   );
 // });
-const httpGetBin = 'https://httpbin.org/get';
+const httpGetBin =
+  'https://pwagram-2d239-default-rtdb.firebaseio.com/posts.json';
 function isAStaticResource(val) {
   let cachePath = '';
   if (val.indexOf(self.origin) === 0) {
