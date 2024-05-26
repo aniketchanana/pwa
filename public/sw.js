@@ -107,7 +107,9 @@ self.addEventListener('fetch', (event) => {
           })
           .then((data) => {
             for (const key in data) {
-              writeData('posts', data[key]);
+              writeData('posts', data[key]).then(() => {
+                deleteItemFromData('posts', key);
+              });
             }
           });
         console.log(res);
@@ -126,7 +128,7 @@ self.addEventListener('fetch', (event) => {
             .then((res) => {
               return caches.open(DYNAMIC_CACHE).then((cache) => {
                 trimCache(DYNAMIC_CACHE, 3);
-                cache.put(event.request.url, res.clone());
+                cache.put(event.request.url, res.clone()).catch(() => {});
                 return res;
               });
             })
