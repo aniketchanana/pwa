@@ -104,22 +104,11 @@ fetch(httpGetBin)
     updateUI(dataArr);
   });
 
-if ('caches' in window) {
-  caches
-    .match(httpGetBin)
-    .then((resp) => {
-      if (resp) {
-        return resp.json();
-      }
-    })
-    .then((data) => {
-      if (!networkDataRec) {
-        const dataArr = [];
-        for (const key in data) {
-          dataArr.push(data[key]);
-        }
-        console.log('from cache', data);
-        updateUI(dataArr);
-      }
-    });
+if ('indexedDB' in window) {
+  readAllData('posts').then((data) => {
+    if (!networkDataRec) {
+      console.log('From indexedDB', data);
+      updateUI(data);
+    }
+  });
 }

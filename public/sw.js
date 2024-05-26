@@ -1,4 +1,6 @@
-const version = 'v7.1';
+importScripts('/src/js/idb.js');
+importScripts('/src/js/util.js');
+const version = 'v7.9';
 const STATIC_CACHE = `static-${version}`;
 const DYNAMIC_CACHE = `dynamic-${version}`;
 const STATIC_FILES = [
@@ -14,6 +16,7 @@ const STATIC_FILES = [
   'https://fonts.googleapis.com/css?family=Roboto:400,700',
   'https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
+  '/src/js/idb.js',
 ];
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -42,6 +45,7 @@ function trimCache(cacheName, maxItems) {
   // dynamic cache can go up and up
   // having a LRU cache algo to handle cache size is best
 }
+
 // self.addEventListener('fetch', (event) => {
 //   event.respondWith(
 //     caches.match(event.request).then((response) => {
@@ -79,6 +83,7 @@ function trimCache(cacheName, maxItems) {
 //       })
 //   );
 // });
+
 const httpGetBin =
   'https://pwagram-2d239-default-rtdb.firebaseio.com/posts.json';
 function isAStaticResource(val) {
@@ -90,19 +95,26 @@ function isAStaticResource(val) {
   }
   return STATIC_FILES.indexOf(cachePath) > -1;
 }
+
 self.addEventListener('fetch', (event) => {
   if (event.request.url.indexOf(httpGetBin) > -1) {
     event.respondWith(
-      caches.open(DYNAMIC_CACHE).then(function (cache) {
-        return fetch(event.request).then((res) => {
-          trimCache(DYNAMIC_CACHE, 3);
-          cache.put(event.request, res.clone());
-          return res;
-        });
+      fetch(event.request).then((res) => {
+        var clonedResp = res.clone();
+        clearStorage('posts')
+          .then(() => {
+            return clonedResp.json();
+          })
+          .then((data) => {
+            for (const key in data) {
+              writeData('posts', data[key]);
+            }
+          });
+        console.log(res);
+        return res;
       })
     );
   } else if (isAStaticResource(event.request.url)) {
-    console.log('i am here');
     event.respondWith(caches.match(event.request));
   } else {
     event.respondWith(
