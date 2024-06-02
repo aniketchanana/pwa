@@ -1,6 +1,6 @@
 importScripts('/src/js/idb.js');
 importScripts('/src/js/util.js');
-const version = 'v7.12.2';
+const version = 'v7.12.6';
 const STATIC_CACHE = `static-${version}`;
 const DYNAMIC_CACHE = `dynamic-${version}`;
 const STATIC_FILES = [
