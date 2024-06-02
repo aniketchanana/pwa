@@ -3,8 +3,10 @@ var createPostArea = document.querySelector('#create-post');
 var closeCreatePostModalButton = document.querySelector(
   '#close-create-post-modal-btn'
 );
+const titleInput = document.getElementById('title');
+const locationInput = document.getElementById('location');
 var sharedMomentsArea = document.querySelector('#shared-moments');
-
+var form = document.querySelector('form');
 function openCreatePostModal() {
   createPostArea.style.display = 'block';
   if (deferredPrompt) {
@@ -112,3 +114,53 @@ if ('indexedDB' in window) {
     }
   });
 }
+function sendData() {
+  fetch(httpGetBin, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      id: new Date().toISOString(),
+      title: titleInput.value,
+      location: locationInput.value,
+      image:
+        'https://fastly.picsum.photos/id/952/200/300.jpg?hmac=TxmAKrqJEDerU9Oz17usv5fHJ4ibYOWOvLK4Q3Z0ytc',
+    }),
+  }).then((res) => {
+    console.log('Send data', res);
+    updateUI();
+  });
+}
+form.addEventListener('submit', function (event) {
+  event.preventDefault();
+  if (titleInput.value.trim() === '' || locationInput.value.trim() === '') {
+    alert('Please enter valid data');
+    return;
+  }
+  closeCreatePostModal();
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    navigator.serviceWorker.ready.then((sw) => {
+      var post = {
+        id: new Date().toISOString(),
+        location: locationInput.value,
+        title: titleInput.value,
+      };
+      writeData('sync-posts', post)
+        .then(() => {
+          return sw.sync.register('sync-new-posts');
+        })
+        .then(() => {
+          const snackBarContainer = document.querySelector(
+            '#confirmation-toast'
+          );
+          const data = { message: 'Your post is saved for sync' };
+          snackBarContainer.MaterialSnackbar.showSnackbar(data);
+        })
+        .catch(console.error);
+    });
+  } else {
+    sendData();
+  }
+});

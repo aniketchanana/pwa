@@ -1,6 +1,6 @@
 importScripts('/src/js/idb.js');
 importScripts('/src/js/util.js');
-const version = 'v7.9';
+const version = 'v7.12.2';
 const STATIC_CACHE = `static-${version}`;
 const DYNAMIC_CACHE = `dynamic-${version}`;
 const STATIC_FILES = [
@@ -107,12 +107,11 @@ self.addEventListener('fetch', (event) => {
           })
           .then((data) => {
             for (const key in data) {
-              writeData('posts', data[key]).then(() => {
-                deleteItemFromData('posts', key);
+              deleteItemFromData('posts', key).then(() => {
+                writeData('posts', data[key]);
               });
             }
           });
-        console.log(res);
         return res;
       })
     );
@@ -142,5 +141,40 @@ self.addEventListener('fetch', (event) => {
         }
       })
     );
+  }
+});
+
+self.addEventListener('sync', function (event) {
+  console.log('BG syncing....');
+  if (event.tag === 'sync-new-posts') {
+    console.log('[Service worker] Syncing new posts....');
+    const r = readAllData('sync-posts').then((data) => {
+      for (const dt of data) {
+        fetch(httpGetBin, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            id: dt.id,
+            title: dt.title,
+            location: dt.location,
+            image:
+              'https://fastly.picsum.photos/id/952/200/300.jpg?hmac=TxmAKrqJEDerU9Oz17usv5fHJ4ibYOWOvLK4Q3Z0ytc',
+          }),
+        })
+          .then((res) => {
+            console.log('Send data', res);
+            if (res.ok) {
+              deleteItemFromData('sync-posts', dt.id);
+            }
+          })
+          .catch(function (err) {
+            console.log('Error while sending data', err);
+          });
+      }
+    });
+    event.waitUntil(r);
   }
 });
