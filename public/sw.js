@@ -193,3 +193,16 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('notificationclose', (event) => {
   console.log('Notification closed', event);
 });
+
+self.addEventListener('push', function (event) {
+  console.log('push notification rec...', event);
+  let data = { title: 'Some dummy', content: 'Dummy' };
+  if (event.data) {
+    data = JSON.parse(event.data.text());
+  }
+  const options = {
+    body: data.content,
+    id: data.content,
+  };
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});

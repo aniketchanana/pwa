@@ -78,6 +78,7 @@ function configurePushSub() {
       }
     })
     .then((newSub) => {
+      console.log(newSub);
       return fetch('http://localhost:3000/subscriptions', {
         method: 'POST',
         headers: {
