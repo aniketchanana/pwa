@@ -203,6 +203,26 @@ self.addEventListener('push', function (event) {
   const options = {
     body: data.content,
     id: data.content,
+    icon: '/src/images/icons/app-icon-96x96.png',
+    image: '/src/images/icons/app-icon-96x96.png',
+    dir: 'ltr',
+    lang: 'en-US',
+    vibrate: [100, 50, 200],
+    badge: '/src/images/icons/app-icon-96x96.png',
+    tag: 'confirm-notification',
+    renotify: true,
+    actions: [
+      {
+        action: 'confirm',
+        title: 'Okay',
+        icon: '/src/images/icons/app-icon-96x96.png',
+      },
+      {
+        action: 'cancel',
+        title: 'Cancel',
+        icon: '/src/images/icons/app-icon-96x96.png',
+      },
+    ],
   };
   event.waitUntil(self.registration.showNotification(data.title, options));
 });
