@@ -81,8 +81,7 @@ function clearCards() {
     sharedMomentsArea.removeChild(sharedMomentsArea.lastChild);
   }
 }
-const httpGetBin =
-  'https://pwagram-2d239-default-rtdb.firebaseio.com/posts.json';
+const httpGetBin = 'http://localhost:3000/posts';
 
 function updateUI(data) {
   clearCards();

@@ -52,3 +52,20 @@ function deleteItemFromData(st, id) {
       console.log(`Error while delete item::${id}`);
     });
 }
+
+function base64UrlToUint8Array(base64Url) {
+  // Decode base64 URL to regular base64
+  const padding = '='.repeat((4 - (base64Url.length % 4)) % 4);
+  const base64 = (base64Url + padding).replace(/\-/g, '+').replace(/_/g, '/');
+
+  // Decode base64 to binary string
+  const binaryString = atob(base64);
+
+  // Create a Uint8Array from the binary string
+  const byteArray = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    byteArray[i] = binaryString.charCodeAt(i);
+  }
+
+  return byteArray;
+}

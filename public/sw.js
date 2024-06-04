@@ -84,8 +84,7 @@ function trimCache(cacheName, maxItems) {
 //   );
 // });
 
-const httpGetBin =
-  'https://pwagram-2d239-default-rtdb.firebaseio.com/posts.json';
+const httpGetBin = 'http://localhost:3000/posts';
 function isAStaticResource(val) {
   let cachePath = '';
   if (val.indexOf(self.origin) === 0) {
@@ -177,4 +176,20 @@ self.addEventListener('sync', function (event) {
     });
     event.waitUntil(r);
   }
+});
+
+self.addEventListener('notificationclick', (event) => {
+  const notification = event.notification;
+  const action = event.action;
+  console.log({ notification, action });
+  if (action === 'confirm') {
+    console.log('Confirm was chosen');
+    notification.close();
+  } else {
+    console.log(action);
+  }
+});
+
+self.addEventListener('notificationclose', (event) => {
+  console.log('Notification closed', event);
 });
